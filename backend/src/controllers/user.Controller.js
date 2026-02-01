@@ -29,7 +29,7 @@ const updateUserProfile = async (req, res) => {
         const userId = req.user.id;
         const { name, mobile_number, selfie_url } = req.body;
 
-        // Construct dynamic update query
+       
         let updateFields = [];
         let values = [];
         let index = 1;
@@ -101,13 +101,13 @@ const getAvailableStats = async (req, res) => {
     try {
         const userId = req.user.id;
 
-        // Count others who are available
+        
         const countResult = await pool.query(
             "SELECT COUNT(*) FROM users WHERE is_available = true AND id != $1",
             [userId]
         );
 
-        // Get my own status
+       
         const myStatusResult = await pool.query(
             "SELECT is_available FROM users WHERE id = $1",
             [userId]
