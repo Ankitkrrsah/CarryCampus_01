@@ -16,17 +16,17 @@ const forgotPassword = async (req, res) => {
             return res.status(404).json({ status: "failed", message: "User not found" });
         }
 
-        // Generate 6-digit OTP
+       
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
+        const expiresAt = new Date(Date.now() + 10 * 60 * 1000); 
 
-        // Save OTP
+        
         await pool.query(
             "INSERT INTO password_resets (email, otp, expires_at) VALUES ($1, $2, $3)",
             [email, otp, expiresAt]
         );
 
-        // Send Email
+       
         await sendEmail(
             email,
             "Reset Password - CarryCampus",
@@ -50,7 +50,7 @@ const resetPassword = async (req, res) => {
             return res.status(400).json({ status: "failed", message: "All fields are required" });
         }
 
-        // Verify OTP
+        
         const otpCheck = await pool.query(
             "SELECT * FROM password_resets WHERE email = $1 AND otp = $2 AND expires_at > NOW() ORDER BY created_at DESC LIMIT 1",
             [email, otp]
@@ -60,13 +60,13 @@ const resetPassword = async (req, res) => {
             return res.status(400).json({ status: "failed", message: "Invalid or expired OTP" });
         }
 
-        // Update Password
+        
         const salt = await bcrypt.genSalt(10);
         const passwordHash = await bcrypt.hash(newPassword, salt);
 
         await pool.query("UPDATE users SET password_hash = $1 WHERE institute_email = $2", [passwordHash, email]);
 
-        // Cleanup used OTPs
+       
         await pool.query("DELETE FROM password_resets WHERE email = $1", [email]);
 
         res.status(200).json({ status: "success", message: "Password reset successfully" });
